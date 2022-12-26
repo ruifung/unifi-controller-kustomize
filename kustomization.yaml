@@ -1,0 +1,6 @@
+﻿kind: Kustomization
+resources:
+  - persistent-volume-claim.yaml
+  - statefulset.yaml
+  - service.yaml
+  - ingress.yaml

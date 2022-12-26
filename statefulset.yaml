@@ -1,0 +1,116 @@
+﻿apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: unifi-controller
+spec:
+  serviceName: unifi-controller
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  selector: {}
+  template:
+    spec:
+      containers:
+      - name: unifi-controller
+        image: linuxserver/unifi-controller
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: device-comm
+          containerPort: 8080
+          protocol: TCP
+        - name: stun
+          containerPort: 3478
+          protocol: UDP
+        - name: default-console
+          containerPort: 8443
+          protocol: TCP
+        - name: secure-redirect
+          containerPort: 8843
+          protocol: TCP
+        - name: http-redirect
+          containerPort: 8880
+          protocol: TCP
+        - name: speedtest
+          containerPort: 6789
+          protocol: TCP
+        - name: unifi-disc
+          containerPort: 10001
+          protocol: UDP
+        - name: unifi-disc-l2
+          containerPort: 1900
+          protocol: UDP
+        resources:
+          requests:
+            cpu: "150m"
+            memory: "1024Mi"
+          limits:
+            cpu: "512m"
+            memory: "2048Mi"
+        volumeMounts:
+          - name: unifi-data
+            mountPath: /config
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: secure-redirect
+            scheme: HTTPS
+          failureThreshold: 30
+          periodSeconds: 60
+        startupProbe:
+          httpGet:
+            path: /status
+            port: secure-redirect
+            scheme: HTTPS
+          failureThreshold: 30
+          periodSeconds: 60
+      initContainers:
+        - name: unifi-import-certs
+          image: linuxserver/unifi-controller
+          volumeMounts:
+            - name: unifi-data
+              mountPath: /config
+            - mountPath: /certs
+              name: unifi-certs
+              readOnly: true
+          command: ["/bin/bash"]
+          args:
+            - "-c"
+            - >-
+              [[ -f /certs/tls.crt && -f /certs/tls.key ]] &&
+              mkdir -p /config/data &&
+              openssl pkcs12 -export -in /certs/tls.crt -inkey /certs/tls.key -name unifi -out certs.pfx -passout pass:qwerty &&
+              keytool -importkeystore -srckeystore certs.pfx -srcstoretype PKCS12 -srcstorepass qwerty -srckeypass qwerty -srcalias unifi -destkeystore /config/data/keystore -deststoretype jks -deststorepass aircontrolenterprise -destkeypass aircontrolenterprise -destalias unifi -noprompt
+        - name: unifi-link-custom-gateway-config
+          image: linuxserver/unifi-controller
+          volumeMounts:
+            - name: unifi-data
+              mountPath: /config
+            - name: custom-gateway-configs
+              mountPath: /gw-configs            
+              readOnly: true
+          command: ["/bin/bash"]
+          args:
+            - "-c"
+            - >-
+              for FILE in $(ls /gw-configs);
+              do if [[ -f /config/data/sites/$FILE/config.gateway.json ]];
+              then if [[ -L /config/data/sites/$FILE/config.gateway.json ]];
+              then rm /config/data/sites/$FILE/config.gateway.json;
+              else mv /config/data/sites/$FILE/config.gateway.json /config/data/sites/$FILE/config.gateway.json.$(date -Iseconds);
+              fi;fi;
+              mkdir -p sites/$FILE &&
+              [[ /gw-configs/$FILE != $(readlink -f /config/data/sites/$FILE/config.gateway.json) ]] &&
+              ln -s /gw-configs/$FILE /config/data/sites/$FILE/config.gateway.json;
+              done
+      volumes:
+        - name: unifi-data
+          persistentVolumeClaim:
+            claimName: unifi-pvc
+        - name: unifi-certs
+          secret:
+            secretName: unifi-certs
+            optional: true
+        - name: custom-gateway-configs
+          configMap:
+            name: unifi-gateway-configs
+            optional: true
