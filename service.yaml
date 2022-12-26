@@ -34,17 +34,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: unifi-controller-ingress
-  annotations:
-    traefik.ingress.kubernetes.io/service.serverstransport: unifi-ingress-transport@KubernetesCRD
 spec:
   ports:
     - name: https
       port: 8843
       protocol: TCP
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: ServersTransport
-metadata:
-  name: unifi-ingress-transport
-spec:
-  insecureSkipVerify: true
