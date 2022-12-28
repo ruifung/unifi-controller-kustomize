@@ -76,10 +76,11 @@ spec:
           args:
             - "-c"
             - >-
-              [[ -f /certs/tls.crt && -f /certs/tls.key ]] &&
-              mkdir -p /config/data &&
+              if [[ -f /certs/tls.crt && -f /certs/tls.key ]];
+              then mkdir -p /config/data &&
               openssl pkcs12 -export -in /certs/tls.crt -inkey /certs/tls.key -name unifi -out certs.pfx -passout pass:qwerty &&
-              keytool -importkeystore -srckeystore certs.pfx -srcstoretype PKCS12 -srcstorepass qwerty -srckeypass qwerty -srcalias unifi -destkeystore /config/data/keystore -deststoretype jks -deststorepass aircontrolenterprise -destkeypass aircontrolenterprise -destalias unifi -noprompt
+              keytool -importkeystore -srckeystore certs.pfx -srcstoretype PKCS12 -srcstorepass qwerty -srckeypass qwerty -srcalias unifi -destkeystore /config/data/keystore -deststoretype jks -deststorepass aircontrolenterprise -destkeypass aircontrolenterprise -destalias unifi -noprompt;
+              fi;
         - name: unifi-link-custom-gateway-config
           image: linuxserver/unifi-controller
           volumeMounts:
