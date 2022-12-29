@@ -66,6 +66,12 @@ spec:
             scheme: HTTPS
           failureThreshold: 30
           periodSeconds: 60
+      - name: server-logs
+        image: busybox:1.28
+        args: [/bin/sh, -c, 'tail -n+1 -F /config/logs/*.log']
+        volumeMounts:
+        - name: unifi-data
+          mountPath: /config
       initContainers:
         - name: unifi-import-certs
           image: linuxserver/unifi-controller
