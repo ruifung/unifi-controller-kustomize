@@ -39,6 +39,9 @@ spec:
         - name: unifi-disc-l2
           containerPort: 1900
           protocol: UDP
+        - name: unifi-syslog
+          containerPort: 5514
+          protocol: UDP
         resources:
           requests:
             cpu: "150m"

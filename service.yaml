@@ -29,6 +29,9 @@ spec:
     - name: unifi-disc-l2
       port: 1900
       protocol: UDP
+    - name: unifi-syslog
+      port: 5514
+      protocol: UDP
 ---
 apiVersion: v1
 kind: Service
