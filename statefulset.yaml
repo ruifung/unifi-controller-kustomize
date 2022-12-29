@@ -49,6 +49,9 @@ spec:
         volumeMounts:
           - name: unifi-data
             mountPath: /config
+          - name: custom-gateway-configs
+            mountPath: /gw-configs            
+            readOnly: true
         livenessProbe:
           httpGet:
             path: /status
