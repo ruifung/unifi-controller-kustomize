@@ -102,7 +102,7 @@ spec:
               then rm /config/data/sites/$FILE/config.gateway.json;
               else mv /config/data/sites/$FILE/config.gateway.json /config/data/sites/$FILE/config.gateway.json.$(date -Iseconds);
               fi;fi;
-              mkdir -p sites/$FILE &&
+              mkdir -p /config/data/sites/$FILE &&
               [[ /gw-configs/$FILE != $(readlink -f /config/data/sites/$FILE/config.gateway.json) ]] &&
               ln -s /gw-configs/$FILE /config/data/sites/$FILE/config.gateway.json;
               done
