@@ -70,19 +70,19 @@ spec:
           periodSeconds: 60
       - name: server-log
         image: busybox:1.28
-        args: [/bin/sh, -c, 'tail -n+1 -F /config/logs/server.log']
+        args: [/bin/sh, -c, 'until [ -f /config/logs/server.log ]; do sleep 5; done; tail -n+1 -F /config/logs/server.log']
         volumeMounts:
         - name: logs
           mountPath: /config/logs
       - name: mongod-log
         image: busybox:1.28
-        args: [/bin/sh, -c, 'tail -n+1 -F /config/logs/mongod.log']
+        args: [/bin/sh, -c, 'until [ -f /config/logs/mongod.log ]; do sleep 5; done; tail -n+1 -F /config/logs/mongod.log']
         volumeMounts:
         - name: logs
           mountPath: /config/logs
       - name: migration-log
         image: busybox:1.28
-        args: [/bin/sh, -c, 'tail -n+1 -F /config/logs/migration.log']
+        args: [/bin/sh, -c, 'until [ -f /config/logs/migration.log ]; do sleep 5; done; tail -n+1 -F /config/logs/migration.log']
         volumeMounts:
         - name: logs
           mountPath: /config/logs
