@@ -49,6 +49,8 @@ spec:
         volumeMounts:
           - name: unifi-data
             mountPath: /config
+          - name: logs
+            mountPath: /config/logs
           - name: custom-gateway-configs
             mountPath: /gw-configs            
             readOnly: true
@@ -66,12 +68,24 @@ spec:
             scheme: HTTPS
           failureThreshold: 30
           periodSeconds: 60
-      - name: server-logs
+      - name: server-log
         image: busybox:1.28
-        args: [/bin/sh, -c, 'tail -n+1 -F /config/logs/*.log']
+        args: [/bin/sh, -c, 'tail -n+1 -F /config/logs/server.log']
         volumeMounts:
-        - name: unifi-data
-          mountPath: /config
+        - name: logs
+          mountPath: /config/logs
+      - name: mongod-log
+        image: busybox:1.28
+        args: [/bin/sh, -c, 'tail -n+1 -F /config/logs/mongod.log']
+        volumeMounts:
+        - name: logs
+          mountPath: /config/logs
+      - name: migration-log
+        image: busybox:1.28
+        args: [/bin/sh, -c, 'tail -n+1 -F /config/logs/migration.log']
+        volumeMounts:
+        - name: logs
+          mountPath: /config/logs
       initContainers:
         - name: unifi-import-certs
           image: linuxserver/unifi-controller
@@ -124,3 +138,6 @@ spec:
           configMap:
             name: unifi-gateway-configs
             optional: true
+        - name: logs
+          emptyDir:
+            sizeLimit: 1Gi
