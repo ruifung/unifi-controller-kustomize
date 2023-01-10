@@ -39,6 +39,6 @@ metadata:
   name: unifi-controller-ingress
 spec:
   ports:
-    - name: https
-      port: 8843
+    - name: default-console
+      port: 8443
       protocol: TCP
