@@ -10,10 +10,17 @@ spec:
   selector: {}
   template:
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
       - name: unifi-controller
         image: linuxserver/unifi-controller
         imagePullPolicy: IfNotPresent
+        env:
+          - name: PUID
+            value: "1000"
+          - name: PGID
+            value: "1000"
         ports:
         - name: device-comm
           containerPort: 8080
