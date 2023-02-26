@@ -84,18 +84,39 @@ spec:
         volumeMounts:
         - name: logs
           mountPath: /config/logs
+        resources:
+          requests:
+            cpu: 11m
+            memory: 66M
+          limits:
+            cpu: 11m
+            memory: 66M
       - name: mongod-log
         image: busybox:1.28
         args: [/bin/sh, -c, 'until [ -f /config/logs/mongod.log ]; do sleep 5; done; tail -n+1 -F /config/logs/mongod.log']
         volumeMounts:
         - name: logs
           mountPath: /config/logs
+        resources:
+          requests:
+            cpu: 11m
+            memory: 66M
+          limits:
+            cpu: 11m
+            memory: 66M
       - name: migration-log
         image: busybox:1.28
         args: [/bin/sh, -c, 'until [ -f /config/logs/migration.log ]; do sleep 5; done; tail -n+1 -F /config/logs/migration.log']
         volumeMounts:
         - name: logs
           mountPath: /config/logs
+        resources:
+          requests:
+            cpu: 11m
+            memory: 66M
+          limits:
+            cpu: 11m
+            memory: 66M
       initContainers:
         - name: unifi-import-certs
           image: linuxserver/unifi-controller
